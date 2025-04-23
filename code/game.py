@@ -1,6 +1,8 @@
+import os
 from settings import *
 from random import choice
 from sys import exit
+import pygame
 from os.path import join
 
 from timer import Timer
@@ -51,7 +53,12 @@ class Game:
         self.current_lines = 0
 
         # sound
-        self.landing_sound = pygame.mixer.Sound(join("..", "sound", "landing.wav"))
+        # file path handling
+        BASE_DIR = os.path.dirname(
+            os.path.abspath(__file__)
+        )  # get the absolute path of this file
+        sound_path = os.path.join(BASE_DIR, "..", "sound", "landing.wav")
+        self.landing_sound = pygame.mixer.Sound(sound_path)
         self.landing_sound.set_volume(0.1)
 
     def calculate_score(self, num_lines):

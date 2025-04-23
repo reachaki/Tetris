@@ -2,7 +2,7 @@ import pygame
 
 # Game size
 COLUMNS = 10
-ROWS = 20
+ROWS = 18
 CELL_SIZE = 40
 GAME_WIDTH, GAME_HEIGHT = COLUMNS * CELL_SIZE, ROWS * CELL_SIZE
 
@@ -32,6 +32,7 @@ CYAN = "#6cc6d9"
 ORANGE = "#f07e13"
 GRAY = "#1C1C1C"
 LINE_COLOR = "#FFFFFF"
+WHITE = "#FFFFFF"
 
 # shapes
 TETROMINOS = {
