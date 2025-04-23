@@ -1,5 +1,6 @@
 from settings import *
 from sys import exit
+from os.path import join
 
 # components
 from game import Game
@@ -25,6 +26,11 @@ class Main:
         self.game = Game(self.get_next_shape, self.update_score)
         self.score = Score()
         self.preview = Preview()
+
+        # audio
+        self.music = pygame.mixer.Sound(join("..", "sound", "music.wav"))
+        self.music.set_volume(0.05)
+        self.music.play(-1)
 
     def update_score(self, lines, score, level):
         self.score.lines = lines
