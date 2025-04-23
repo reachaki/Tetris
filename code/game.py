@@ -5,13 +5,16 @@ from timer import Timer
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, get_next_shape):
 
         # general
         self.surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
         self.display_surface = pygame.display.get_surface()
         self.rect = self.surface.get_rect(topleft=(PADDING, PADDING))
         self.sprites = pygame.sprite.Group()
+
+        # game connection
+        self.get_next_shape = get_next_shape
 
         # lines
         self.line_surface = self.surface.copy()
@@ -40,7 +43,7 @@ class Game:
 
         self.check_finished_rows()
         self.tetromino = Tetromino(
-            choice(list(TETROMINOS.keys())),
+            self.get_next_shape(),
             self.sprites,
             self.create_new_tetromino,
             self.field_data,
