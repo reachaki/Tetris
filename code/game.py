@@ -9,8 +9,7 @@ from timer import Timer
 
 
 class Game:
-    def __init__(self, get_next_shape, update_score):
-
+    def __init__(self, get_next_shape, update_score, set_game_over=None):
         # general
         self.surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
         self.display_surface = pygame.display.get_surface()
@@ -20,6 +19,7 @@ class Game:
         # game connection
         self.get_next_shape = get_next_shape
         self.update_score = update_score
+        self.set_game_over = set_game_over
 
         # lines
         self.line_surface = self.surface.copy()
@@ -53,13 +53,13 @@ class Game:
         self.current_lines = 0
 
         # sound
-        # file path handling
-        BASE_DIR = os.path.dirname(
-            os.path.abspath(__file__)
-        )  # get the absolute path of this file
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         sound_path = os.path.join(BASE_DIR, "..", "sound", "landing.wav")
-        self.landing_sound = pygame.mixer.Sound(sound_path)
-        self.landing_sound.set_volume(0.1)
+        if os.path.exists(sound_path):
+            self.landing_sound = pygame.mixer.Sound(sound_path)
+            self.landing_sound.set_volume(0.1)
+        else:
+            self.landing_sound = None
 
     def calculate_score(self, num_lines):
         self.current_lines += num_lines
@@ -76,11 +76,16 @@ class Game:
     def check_game_over(self):
         for block in self.tetromino.blocks:
             if block.pos.y < 0:
-                exit()
+                if self.set_game_over:
+                    self.set_game_over()
+                return True
+        return False
 
     def create_new_tetromino(self):
-        self.landing_sound.play()
-        self.check_game_over()
+        if self.landing_sound:
+            self.landing_sound.play()
+        if self.check_game_over():
+            return
         self.check_finished_rows()
         self.tetromino = Tetromino(
             self.get_next_shape(),
@@ -97,7 +102,6 @@ class Game:
         self.tetromino.move_down()
 
     def draw_grid(self):
-
         for col in range(1, COLUMNS):
             x = col * CELL_SIZE
             pygame.draw.line(
@@ -140,7 +144,6 @@ class Game:
             self.timers["vertical move"].duration = self.down_speed
 
     def check_finished_rows(self):
-
         # get the full row indexes
         delete_rows = []
         for i, row in enumerate(self.field_data):
@@ -149,7 +152,6 @@ class Game:
 
         if delete_rows:
             for delete_row in delete_rows:
-
                 # delete full rows
                 for block in self.field_data[delete_row]:
                     block.kill()
@@ -169,7 +171,6 @@ class Game:
             self.calculate_score(len(delete_rows))
 
     def run(self):
-
         # update
         self.input()
         self.timer_update()
@@ -186,7 +187,6 @@ class Game:
 
 class Tetromino:
     def __init__(self, shape, group, create_new_tetromino, field_data):
-
         # setup
         self.shape = shape
         self.block_positions = TETROMINOS[shape]["shape"]
@@ -230,7 +230,6 @@ class Tetromino:
     # rotate
     def rotate(self):
         if self.shape != "O":
-
             # 1. pivot point
             pivot_pos = self.blocks[0].pos
 
@@ -258,7 +257,6 @@ class Tetromino:
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, group, pos, color):
-
         # general
         super().__init__(group)
         self.image = pygame.Surface((CELL_SIZE, CELL_SIZE))
@@ -269,7 +267,6 @@ class Block(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=self.pos * CELL_SIZE)
 
     def rotate(self, pivot_pos):
-
         return pivot_pos + (self.pos - pivot_pos).rotate(90)
 
     def horizontal_collide(self, x, field_data):
@@ -287,5 +284,4 @@ class Block(pygame.sprite.Sprite):
             return True
 
     def update(self):
-
         self.rect.topleft = self.pos * CELL_SIZE
